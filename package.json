@@ -6,6 +6,9 @@
   "repository": "git@github.com:EitZei/ruuvi-gateway.git",
   "author": "Antti Järvinen <antti.jarvinen@alupark.fi>",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "axios": "^0.18.0",
     "noble": "^1.9.1",
