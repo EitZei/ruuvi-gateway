@@ -24,7 +24,7 @@ noble.on('discover', (peripheral) => {
     const data = ruuvi.parseData(rawData.toString('hex'));
 
     if (data) {
-      log.info(`Got ${peripheral.id} ${JSON.stringify(data)}`);
+      log.debug(`Got ${peripheral.id} ${JSON.stringify(data)}`);
     }
   }
 });
