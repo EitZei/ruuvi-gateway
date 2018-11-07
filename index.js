@@ -40,7 +40,7 @@ noble.on('discover', (peripheral) => {
       });
 
       // Size buffer by number of detected devices and buffer size
-      const bufferLimit = Object.keys(previousData) * perDeviceBufferSize;
+      const bufferLimit = Object.keys(previousData).length * perDeviceBufferSize;
 
       if (buffer.length > bufferLimit) {
         const auth = {
