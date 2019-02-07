@@ -1,0 +1,18 @@
+[Unit]
+Description=Ruuvi Gateway
+After=network.target
+
+[Service]
+WorkingDirectory=/usr/local/share/ruuvi-gateway
+ExecStart=/usr/bin/yarn start
+Restart=on-failure
+User=pi
+Environment="LOG_DIR=/var/log/ruuvi-gateway"
+Environment="NODE_TLS_REJECT_UNAUTHORIZED=0"
+Environment="DATA_INBOUND_API_URL="
+Environment="DATA_INBOUND_API_USERNAME="
+Environment="DATA_INBOUND_API_PASSWORD="
+Environment="PER_DEVICE_BUFFER_SIZE=10"
+
+[Install]
+WantedBy=multi-user.target
