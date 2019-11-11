@@ -10,8 +10,8 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "@abandonware/noble": "^1.9.2-5",
     "axios": "^0.18.0",
-    "noble": "^1.9.1",
     "winston": "^3.1.0",
     "winston-daily-rotate-file": "^3.4.1"
   },

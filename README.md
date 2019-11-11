@@ -21,7 +21,7 @@ These are my instructions to install and get this RuuviTag BLE + Node + Raspberr
 7. Install Node.js with `sudo apt-get install nodejs`
 8. Check that Node.js works with `node -v`
 8. Install Bluetooth libraries with `sudo apt-get install bluetooth bluez libbluetooth-dev libudev-dev libcap2-bin`
-9. Give rights to Node `sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)`
+9. Give rights to Node `sudo setcap cap_net_raw+eip $(eval readlink -f ``which node``)`
 10. Go to directory `/usr/local/share/`
 11. Clone repository from git `sudo git clone [repositoryUrl]`
 12. Give rights to user `sudo chown -R pi:staff ruuvi-gateway`
@@ -32,6 +32,7 @@ These are my instructions to install and get this RuuviTag BLE + Node + Raspberr
 17. Install Yarn `sudo apt-get update && sudo apt-get install yarn`
 18. Install application dependencies `yarn install`
 19. Copy file from `./templates/ruuvi-gateway.service` to `/etc/systemd/system/ruuvi-gateway.service`
-20. Enable the service with `sudo systemctl enable ruuvi-gateway.service`
-20. Run the service with `sudo systemctl start ruuvi-gateway.service`
-21. See the logs with `journalctl -f -u ruuvi-gateway`
+20. Edit the `/etc/systemd/system/ruuvi-gateway.service` to set the enviroment parameters (or do it otherwise)
+21. Enable the service with `sudo systemctl enable ruuvi-gateway.service`
+22. Run the service with `sudo systemctl start ruuvi-gateway.service`
+23. See the logs with `journalctl -f -u ruuvi-gateway`
