@@ -1,7 +1,7 @@
 require('./lib/conf/logging');
 
 const log = require('winston');
-const noble = require('noble');
+const noble = require('@abandonware/noble');
 const axios = require('axios');
 
 const ruuvi = require('./lib/ruuvi');
