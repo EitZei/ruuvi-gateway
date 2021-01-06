@@ -13,7 +13,7 @@ const buffer = [];
 
 log.info("Ruuvi Gateway starting...");
 
-const client = MQTT.connect(process.env.MQTT_URL, {
+const client = mqtt.connect(process.env.MQTT_URL, {
   username: process.env.MQTT_USERNAME,
   password: process.env.MQTT_PASSWORD,
 });
