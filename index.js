@@ -1,46 +1,48 @@
-require('./lib/conf/logging');
+require("./lib/conf/logging");
 
-const log = require('winston');
-const noble = require('@abandonware/noble');
-const axios = require('axios');
-const mqtt = require('mqtt')
+const log = require("winston");
+const noble = require("@abandonware/noble");
+const axios = require("axios");
+const mqtt = require("mqtt");
 
-const ruuvi = require('./lib/ruuvi');
+const ruuvi = require("./lib/ruuvi");
 
 const perDeviceBufferSize = process.env.PER_DEVICE_BUFFER_SIZE || 30;
 const previousData = {};
 const buffer = [];
 
-log.info('Ruuvi Gateway starting...');
+log.info("Ruuvi Gateway starting...");
 
-
-const client = MQTT.connect(process.env.MQTT_URL, { username: process.env.USERNAME, password: process.env.PASSWORD });
-
-client.on('connect', () => {
-  log.info('MQTT client connected.')
+const client = MQTT.connect(process.env.MQTT_URL, {
+  username: process.env.MQTT_USERNAME,
+  password: process.env.MQTT_PASSWORD,
 });
 
-noble.on('stateChange', (state) => {
-  if (state === 'poweredOn') {
-    log.info('BLE powered on. Start scanning.');
+client.on("connect", () => {
+  log.info("MQTT client connected.");
+});
+
+noble.on("stateChange", (state) => {
+  if (state === "poweredOn") {
+    log.info("BLE powered on. Start scanning.");
     noble.startScanning([], true);
   } else {
-    log.info('Other state change. Stop scanning.');
+    log.info("Other state change. Stop scanning.");
     noble.stopScanning();
   }
 });
 
-noble.on('discover', (peripheral) => {
+noble.on("discover", (peripheral) => {
   const rawData = peripheral.advertisement.manufacturerData;
 
   if (rawData && rawData.length > 0) {
-    const data = ruuvi.parseData(rawData.toString('hex'));
+    const data = ruuvi.parseData(rawData.toString("hex"));
 
     if (data) {
       log.debug(`Got ${peripheral.id} ${JSON.stringify(data)}`);
 
       // Send to MQTT
-      sendToMqtt(peripheral.id, data)
+      sendToMqtt(peripheral.id, data);
 
       previousData[peripheral.id] = data;
 
@@ -51,7 +53,8 @@ noble.on('discover', (peripheral) => {
       });
 
       // Size buffer by number of detected devices and buffer size
-      const bufferLimit = Object.keys(previousData).length * perDeviceBufferSize;
+      const bufferLimit =
+        Object.keys(previousData).length * perDeviceBufferSize;
 
       if (buffer.length > bufferLimit) {
         const auth = {
@@ -61,11 +64,14 @@ noble.on('discover', (peripheral) => {
 
         const dataToSend = buffer.splice(0, buffer.length);
 
-        axios.post(process.env.DATA_INBOUND_API_URL, dataToSend, {
-            auth
+        axios
+          .post(process.env.DATA_INBOUND_API_URL, dataToSend, {
+            auth,
           })
           .then(() => {
-            log.debug(`Successfully send ${dataToSend.length} measurements to the server.`);
+            log.debug(
+              `Successfully send ${dataToSend.length} measurements to the server.`
+            );
           })
           .catch((e) => {
             log.log(`Failed sending data to the serve ${e}.`);
@@ -76,9 +82,28 @@ noble.on('discover', (peripheral) => {
 });
 
 function sendToMqtt(id, data) {
-  client.publish(`ruuvi/${id}/temperature`, data.temperature)
-  client.publish(`ruuvi/${id}/humidity`, data.humidity)
-  client.publish(`ruuvi/${id}/pressure`, data.pressure)
-  client.publish(`ruuvi/${id}/battery`, data.battery)
-  client.publish(`ruuvi/${id}/acceleration`, JSON.stringify({ x: data.accelerationX, y: data.accelerationY, z: data.accelerationZ}))
+  client.publish(
+    `ruuvi/${id}/temperature`,
+    JSON.stringify({ value: data.temperature })
+  );
+  client.publish(
+    `ruuvi/${id}/humidity`,
+    JSON.stringify({ value: data.humidity })
+  );
+  client.publish(
+    `ruuvi/${id}/pressure`,
+    JSON.stringify({ value: data.pressure })
+  );
+  client.publish(
+    `ruuvi/${id}/battery`,
+    JSON.stringify({ value: data.battery })
+  );
+  client.publish(
+    `ruuvi/${id}/acceleration`,
+    JSON.stringify({
+      x: data.accelerationX,
+      y: data.accelerationY,
+      z: data.accelerationZ,
+    })
+  );
 }
