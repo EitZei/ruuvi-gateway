@@ -82,9 +82,10 @@ noble.on("discover", (peripheral) => {
 });
 
 function sendToMqtt(id, data) {
-  const tempBuffer = Buffer.alloc(8);
-  tempBuffer.writeDoubleBE(data.temperature);
-  client.publish(`ruuvi/${id}/temperature`, tempBuffer);
+  client.publish(
+    `ruuvi/${id}/temperature`,
+    JSON.stringify({ value: data.temperature })
+  );
   client.publish(
     `ruuvi/${id}/humidity`,
     JSON.stringify({ value: data.humidity })
