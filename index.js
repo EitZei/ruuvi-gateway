@@ -3,6 +3,7 @@ require('./lib/conf/logging');
 const log = require('winston');
 const noble = require('@abandonware/noble');
 const axios = require('axios');
+const mqtt = require('mqtt')
 
 const ruuvi = require('./lib/ruuvi');
 
@@ -11,6 +12,13 @@ const previousData = {};
 const buffer = [];
 
 log.info('Ruuvi Gateway starting...');
+
+
+const client = MQTT.connect(process.env.MQTT_URL, { username: process.env.USERNAME, password: process.env.PASSWORD });
+
+client.on('connect', () => {
+  log.info('MQTT client connected.')
+});
 
 noble.on('stateChange', (state) => {
   if (state === 'poweredOn') {
@@ -30,6 +38,9 @@ noble.on('discover', (peripheral) => {
 
     if (data) {
       log.debug(`Got ${peripheral.id} ${JSON.stringify(data)}`);
+
+      // Send to MQTT
+      sendToMqtt(peripheral.id, data)
 
       previousData[peripheral.id] = data;
 
@@ -63,3 +74,11 @@ noble.on('discover', (peripheral) => {
     }
   }
 });
+
+function sendToMqtt(id, data) {
+  client.publish(`ruuvi/${id}/temperature`, data.temperature)
+  client.publish(`ruuvi/${id}/humidity`, data.humidity)
+  client.publish(`ruuvi/${id}/pressure`, data.pressure)
+  client.publish(`ruuvi/${id}/battery`, data.battery)
+  client.publish(`ruuvi/${id}/acceleration`, JSON.stringify({ x: data.accelerationX, y: data.accelerationY, z: data.accelerationZ}))
+}
